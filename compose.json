@@ -16,9 +16,6 @@
       "ports": [
         "${BLOCK_SSH_PORT}"
       ],
-      "cap_add": [
-        "NET_ADMIN"
-      ],
       "dns_search": "node.dc1.consul service.dc1.consul",
       "image": "${BLOCK_REGISTRY}/block:irssi"
     }
