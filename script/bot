@@ -3,7 +3,7 @@
 function on_bot {
 	case "${IRC_COMMAND}" in
 		PING)
-			echo "PING ${IRC_PARAMS}"
+			echo "PONG ${IRC_PARAMS}"
 			;;
 		$RPL_ENDOFMOTD)
 			echo "JOIN ${nm_channel}"
