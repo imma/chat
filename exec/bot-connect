@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source "$shome/vendor/irc.sh"
+
+  set -x
+
+  local nm_host="$1"; shift
+  local port_host="$1"; shift
+  local nm_user="$1"; shift
+  local nm_channel="$1"; shift
+
+	coproc irc { nc "${nm_host}" "${port_host}"; }
+
+	bot <&${irc[0]} >&${irc[1]} 
+}
+
+function bot {
+  echo "NICK ${nm_user}"
+  echo "USER ${nm_user} 0 * :${nm_user}"
+  while read line; do
+    irc_parse "$line"
+    source "$shome/script/bot"
+    on_bot
+  done
+}
+
+source sub "$BASH_SOURCE" "$@"

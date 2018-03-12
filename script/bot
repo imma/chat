@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function on_bot {
+	case "${IRC_COMMAND}" in
+		PING)
+			echo "PING ${IRC_PARAMS}"
+			;;
+		$RPL_ENDOFMOTD)
+			echo "JOIN ${nm_channel}"
+			;;
+		*)
+			echo "${IRC_PARAMS[*]}" 1>&2
+	esac
+}

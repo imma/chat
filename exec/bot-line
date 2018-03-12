@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+
+	local line="$1"; shift
+  echo "$line" 2>&2
+}
+
+source sub "$BASH_SOURCE" "$@"

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+function _chat_profile {
+  local shome="${_chat_home:="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"}"
+  PATH="$PATH:$shome/bin:$shome/exec"
+}
+
+_chat_profile

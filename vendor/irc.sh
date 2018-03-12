@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source numeric_commands.sh
+source "$shome/vendor/numeric_commands.sh"
 
 # irc_tokenise "$line"
 # Takes a line of IRC protocol, and splits it up.
