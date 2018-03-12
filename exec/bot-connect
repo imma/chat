@@ -20,10 +20,15 @@ function main {
 function bot {
   echo "NICK ${nm_user}"
   echo "USER ${nm_user} 0 * :${nm_user}"
-  while read line; do
-    irc_parse "$line"
-    source "$shome/script/bot"
-    on_bot
+  while true; do
+    if read -t 1 line; then
+      irc_parse "$line"
+      source "$shome/script/bot"
+      on_bot
+    else
+      source "$shome/script/bot"
+      on_timeout
+    fi
   done
 }
 

@@ -12,3 +12,7 @@ function on_bot {
 			echo "${IRC_PARAMS[*]}" 1>&2
 	esac
 }
+
+function on_timeout {
+  date 1>&2
+}
