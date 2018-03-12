@@ -14,5 +14,10 @@ function on_bot {
 }
 
 function on_timeout {
-  date 1>&2
+  if [[ -f "$shome/tmp/input.txt" ]]; then
+    cat "$shome/tmp/input.txt"
+    rm -f "$shome/tmp/input.txt"
+  else
+    date 1>&2
+  fi
 }
