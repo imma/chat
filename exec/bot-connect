@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash4
 
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
@@ -7,19 +7,25 @@ function main {
 
   set -x
 
-  local nm_host="$1"; shift
-  local port_host="$1"; shift
+  local irc_connect="$1"; shift
   local nm_user="$1"; shift
   local nm_channel="$1"; shift
 
-	coproc irc { nc "${nm_host}" "${port_host}"; }
+	coproc irc { ${irc_connect}; }
 
 	bot <&${irc[0]} >&${irc[1]} 
 }
 
 function bot {
-  echo "NICK ${nm_user}"
-  echo "USER ${nm_user} 0 * :${nm_user}"
+  local fl_sasl=1
+
+  if [[ -n "$fl_sasl" ]]; then
+    echo "CAP LS"
+  else
+    echo "NICK ${nm_user}"
+    echo "USER ${nm_user} 0 * :${nm_user}"
+  fi
+
   while true; do
     if read -t 2 line; then
       irc_parse "$line"

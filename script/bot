@@ -22,6 +22,16 @@ function reply {
   } 1>>"$shome/log/sent.log"
 }
 
+function on_timeout {
+  if [[ -f "$shome/tmp/input.txt" ]]; then
+    cat "$shome/tmp/input.txt"
+    cat "$shome/tmp/input.txt" >> "$shome/log/sent.log"
+    rm -f "$shome/tmp/input.txt"
+  else
+    true
+  fi
+}
+
 function on_bot {
   local nm_handler="on_${IRC_COMMAND,,}"
   if [[ "$(type -t "${nm_handler}")" == "function" ]]; then
@@ -47,8 +57,17 @@ function on_weird {
 }
 
 function on_quit {
-  sleep 60
+  local pid_irc="${irc_PID:-}"
+
+  if [[ -n "$pid_irc" ]]; then
+    kill "${pid_irc}"
+    wait "${pid_irc}"
+  fi
   exit 1
+}
+
+function on_error {
+  on_quit
 }
 
 function on_log {
@@ -97,12 +116,43 @@ function on_notice {
 
 }
 
-function on_timeout {
-  if [[ -f "$shome/tmp/input.txt" ]]; then
-    cat "$shome/tmp/input.txt"
-    cat "$shome/tmp/input.txt" >> "$shome/log/sent.log"
-    rm -f "$shome/tmp/input.txt"
-  else
-    true
-  fi
+function on_cap {
+  case "${IRC_PARAMS[1]:-}" in
+    LS)
+      reply "CAP REQ :multi-prefix sasl"
+      ;;
+    ACK)
+      reply "AUTHENTICATE PLAIN"
+      ;;
+    NAK)
+      on_quit
+      ;;
+    LIST)
+      reply "CAP END"
+      ;;
+  esac
+}
+
+function on_authenticate {
+	true
+}
+
+function on_903 {
+	reply "CAP END"
+}
+
+function on_904 {
+	on_quit
+}
+
+function on_905 {
+	reply "CAP END"
+}
+
+function on_906 {
+	on_quit
+}
+
+function on_907 {
+	reply "CAP END"
 }
