@@ -9,20 +9,47 @@ function main {
   coproc tail { tail -f "$shome/log/console.log"; }
   exec 4<&${tail[0]}
 
+  local nm_channel='#immanent'
+
   IFS=
   accum=
   d=
   while true; do 
     if [[ -n "${accum:-}" ]]; then
       stty echo
-      if read -p '#immanent > ' -r -e -i "$accum" d; then
+      if read -p "${nm_channel} " -r -e -i "$accum" d; then
         accum="${d}"
-        echo "privmsg #immanent :$accum" > "$shome/tmp/input.tmp"
-        accum=
+
+        case "$accum" in
+          /*)
+            case "$accum" in
+              /channel\ *)
+                nm_channel="${accum#* }"
+                ;;
+              /join\ *)
+                nm_channel="${accum#* }"
+                echo "JOIN ${nm_channel}" > "$shome/tmp/input.tmp"
+                ;;
+              *)
+                echo "UNHANDLED: $accum"
+                ;;
+            esac
+            ;;
+          *)
+            echo "PRIVMSG ${nm_channel} :$accum" > "$shome/tmp/input.tmp"
+            ;;
+        esac
+
         while [[ -f "$shome/tmp/input.txt" ]]; do
           sleep 1
         done
-        mv "$shome/tmp/input.tmp" "$shome/tmp/input.txt"
+
+        if [[ -f "$shome/tmp/input.tmp" ]]; then
+          mv "$shome/tmp/input.tmp" "$shome/tmp/input.txt"
+          cat "$shome/tmp/input.txt"
+        fi
+
+        accum=
       fi
     else
       stty -echo
