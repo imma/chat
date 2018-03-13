@@ -137,22 +137,47 @@ function on_authenticate {
 	true
 }
 
+# RPL_LOGGEDIN
+function on_900 {
+	reply "CAP END"
+}
+
+# RPL_LOGGEDOUT
+function on_901 {
+	reply "CAP END"
+}
+
+# ERR_NICKLOCKED
+function on_902 {
+	reply "CAP END"
+}
+
+# RPL_SASLSUCCESS
 function on_903 {
 	reply "CAP END"
 }
 
+# ERR_SASLFAIL
 function on_904 {
 	on_quit
 }
 
+# ERR_SASLTOOLONG
 function on_905 {
 	reply "CAP END"
 }
 
+# ERR_SASLABORTED
 function on_906 {
 	on_quit
 }
 
+# ERR_SASLALREADY
 function on_907 {
+	reply "CAP END"
+}
+
+# RPL_SASLMECHS
+function on_908 {
 	reply "CAP END"
 }
