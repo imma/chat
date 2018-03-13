@@ -28,6 +28,11 @@ function on_bot {
   local nm_handler="on_${IRC_COMMAND,,}"
   if [[ "$(type -t "${nm_handler}")" == "function" ]]; then
     "$nm_handler"
+    case "${nm_handler}" in
+      on_ping)
+        return
+        ;;
+    esac
   else
     on_weird
   fi
@@ -65,8 +70,7 @@ function on_log {
 }
 
 function on_ping {
-  reply "PONG ${IRC_PARAMS}" "$line"
-  return
+  irc_ping
 }
 
 function on_privmsg {
