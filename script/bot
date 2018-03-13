@@ -56,17 +56,13 @@ function on_weird {
   esac
 }
 
-function on_quit {
+function on_error {
   local pid_irc="${irc_PID:-}"
 
   if [[ -n "$pid_irc" ]]; then
     kill "${pid_irc}"
   fi
   exit 1
-}
-
-function on_error {
-  on_quit
 }
 
 function on_log {
@@ -124,7 +120,7 @@ function on_cap {
       reply "AUTHENTICATE PLAIN"
       ;;
     NAK)
-      on_quit
+      on_error
       ;;
     LIST)
       reply "CAP END"
