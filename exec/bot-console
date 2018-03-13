@@ -29,7 +29,7 @@ function main {
       esac
 
       if read -p "${prompt}" -r -e -i "$accum" d; then
-        accum="${d}"
+        accum="$(trim "${d}")"
 
         case "$accum" in
           /*)
@@ -48,6 +48,11 @@ function main {
                 ;;
             esac
             ;;
+					"")
+            accum=
+            d=
+						true
+						;;
           *)
             echo "PRIVMSG ${nm_channel} :$accum" > "$shome/tmp/input.tmp"
             ;;
@@ -67,13 +72,17 @@ function main {
     else
       stty -echo
       if read -t 1 -N 1 -r -s d; then
-        accum="${d}"
+        accum="$(trim "${d}")"
         continue
       fi
 
       while true; do
         if read -t 1 -u 4 -r console; then
-          echo "$console"
+          if [[ -n "${console:-}" ]]; then
+            echo "$console"
+          else
+            break
+          fi
         else
           break
         fi
@@ -81,6 +90,13 @@ function main {
     fi
   done
 
+}
+
+trim() {
+	local var="$*"
+	var="${var#"${var%%[![:space:]]*}"}"
+	var="${var%"${var##*[![:space:]]}"}"   
+	echo -n "$var"
 }
 
 source sub "$BASH_SOURCE" "$@"
