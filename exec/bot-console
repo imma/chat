@@ -70,21 +70,23 @@ function main {
       fi
     else
       stty -echo
-      if read -t 1 -N 1 -r -s d; then
-        accum="$(trim "${d}")"
-        continue
-      fi
-
       while true; do
-        if read -t 1 -u 4 -r console; then
-          if [[ -n "${console:-}" ]]; then
-            echo "$console"
+        if read -t 1 -N 1 -r -s d; then
+          accum="$(trim "${d}")"
+          break
+        fi
+
+        while true; do
+          if read -t 0.1 -u 4 -r console; then
+            if [[ -n "${console:-}" ]]; then
+              echo "$console"
+            else
+              break
+            fi
           else
             break
           fi
-        else
-          break
-        fi
+        done
       done
     fi
   done
