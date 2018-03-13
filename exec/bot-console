@@ -17,7 +17,18 @@ function main {
   while true; do 
     if [[ -n "${accum:-}" ]]; then
       stty echo
-      if read -p "${nm_channel} " -r -e -i "$accum" d; then
+
+      local prompt=
+      case "$accum" in
+        /*)
+          prompt=
+          ;;
+        *)
+          prompt="${nm_channel} "
+          ;;
+      esac
+
+      if read -p "${prompt}" -r -e -i "$accum" d; then
         accum="${d}"
 
         case "$accum" in
@@ -27,8 +38,10 @@ function main {
                 nm_channel="${accum#* }"
                 ;;
               /join\ *)
-                nm_channel="${accum#* }"
-                echo "JOIN ${nm_channel}" > "$shome/tmp/input.tmp"
+                echo "JOIN ${accum#* }" > "$shome/tmp/input.tmp"
+                ;;
+              /part\ *)
+                echo "PART ${accum#* }" > "$shome/tmp/input.tmp"
                 ;;
               *)
                 echo "UNHANDLED: $accum"
