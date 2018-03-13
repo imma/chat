@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash4
 
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
@@ -71,7 +71,7 @@ function main {
     else
       stty -echo
       while true; do
-        if read -t 1 -N 1 -r -s d; then
+        if read -t 1 -N 1 -r d; then
           accum="$(trim "${d}")"
           break
         fi
