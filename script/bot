@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set +x
-
 mkdir -p "$shome/log"
 
 function console {
