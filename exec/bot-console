@@ -64,7 +64,6 @@ function main {
 
         if [[ -f "$shome/tmp/input.tmp" ]]; then
           mv "$shome/tmp/input.tmp" "$shome/tmp/input.txt"
-          cat "$shome/tmp/input.txt"
         fi
 
         accum=
