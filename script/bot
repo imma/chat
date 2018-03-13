@@ -61,7 +61,6 @@ function on_quit {
 
   if [[ -n "$pid_irc" ]]; then
     kill "${pid_irc}"
-    wait "${pid_irc}"
   fi
   exit 1
 }
@@ -134,12 +133,13 @@ function on_cap {
 }
 
 function on_authenticate {
-	true
+	echo -n 'AUTHENTICATE '
+  cat "$shome/tmp/auth.txt"
 }
 
 # RPL_LOGGEDIN
 function on_900 {
-	reply "CAP END"
+  on_login
 }
 
 # RPL_LOGGEDOUT
@@ -159,7 +159,7 @@ function on_903 {
 
 # ERR_SASLFAIL
 function on_904 {
-	on_quit
+	reply "CAP END"
 }
 
 # ERR_SASLTOOLONG
@@ -169,7 +169,7 @@ function on_905 {
 
 # ERR_SASLABORTED
 function on_906 {
-	on_quit
+	true
 }
 
 # ERR_SASLALREADY
@@ -179,5 +179,5 @@ function on_907 {
 
 # RPL_SASLMECHS
 function on_908 {
-	reply "CAP END"
+  true
 }

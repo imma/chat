@@ -16,14 +16,18 @@ function main {
 	bot <&${irc[0]} >&${irc[1]} 
 }
 
+function on_login {
+  echo "NICK ${nm_user}"
+  echo "USER ${nm_user} 0 * :${nm_user}"
+}
+
 function bot {
   local fl_sasl=1
 
   if [[ -n "$fl_sasl" ]]; then
     echo "CAP LS"
   else
-    echo "NICK ${nm_user}"
-    echo "USER ${nm_user} 0 * :${nm_user}"
+    on_login
   fi
 
   while true; do
