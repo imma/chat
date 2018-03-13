@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+
+  coproc tail { tail -f "$shome/log/console.log"; }
+  exec 4<&${tail[0]}
+
+  IFS=
+  accum=
+  while true; do 
+    if read -t 1 -N 1 d; then
+      if [[ ${d} = $'\n' ]]; then
+        echo "privmsg #finite :$accum" > "$shome/tmp/input.tmp"
+        while [[ -f "$shome/tmp/input.txt" ]]; do
+          sleep 1
+        done
+        mv "$shome/tmp/input.tmp" "$shome/tmp/input.txt"
+        accum=
+      else
+        accum="${accum}${d}"
+      fi
+    else
+      if [[ -n "${accum}" ]]; then
+        continue
+      fi
+
+      while true; do
+        if read -t 1 -u 4 console; then
+          echo "$console"
+        else
+          break
+        fi
+      done
+    fi
+  done
+
+}
+
+source sub "$BASH_SOURCE" "$@"
