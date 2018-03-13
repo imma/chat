@@ -3,30 +3,36 @@
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
 
+  stty -echo
+  trap 'stty echo' EXIT
+
   coproc tail { tail -f "$shome/log/console.log"; }
   exec 4<&${tail[0]}
 
   IFS=
   accum=
+  d=
   while true; do 
-    if read -t 1 -N 1 d; then
-      if [[ ${d} = $'\n' ]]; then
-        echo "privmsg #finite :$accum" > "$shome/tmp/input.tmp"
+    if [[ -n "${accum:-}" ]]; then
+      stty echo
+      if read -p '#immanent > ' -r -e -i "$accum" d; then
+        accum="${d}"
+        echo "privmsg #immanent :$accum" > "$shome/tmp/input.tmp"
+        accum=
         while [[ -f "$shome/tmp/input.txt" ]]; do
           sleep 1
         done
         mv "$shome/tmp/input.tmp" "$shome/tmp/input.txt"
-        accum=
-      else
-        accum="${accum}${d}"
       fi
     else
-      if [[ -n "${accum}" ]]; then
+      stty -echo
+      if read -t 1 -N 1 -r -s d; then
+        accum="${d}"
         continue
       fi
 
       while true; do
-        if read -t 1 -u 4 console; then
+        if read -t 1 -u 4 -r console; then
           echo "$console"
         else
           break
