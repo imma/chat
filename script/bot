@@ -102,6 +102,7 @@ function on_notice {
 function on_timeout {
   if [[ -f "$shome/tmp/input.txt" ]]; then
     cat "$shome/tmp/input.txt"
+    cat "$shome/tmp/input.txt" >> "$shome/log/sent.log"
     rm -f "$shome/tmp/input.txt"
   else
     true
