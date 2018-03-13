@@ -21,7 +21,7 @@ function bot {
   echo "NICK ${nm_user}"
   echo "USER ${nm_user} 0 * :${nm_user}"
   while true; do
-    if read -t 1 line; then
+    if read -t 2 line; then
       irc_parse "$line"
       source "$shome/script/bot"
       on_bot

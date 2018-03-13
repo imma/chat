@@ -1,16 +1,98 @@
 #!/usr/bin/env bash
 
+set +x
+
+mkdir -p "$shome/log"
+
+function console {
+  local msg_console="$1"; shift
+
+  echo "$msg_console" 1>>"$shome/log/console.log"
+}
+
+function reply {
+  local msg_server="$1"; shift
+  local msg_source="${1:-}"
+
+  echo "$msg_server"
+
+  echo "SENT: $msg_server" 1>&2
+  {
+    echo
+    echo "FROM: $msg_source"
+    echo "SENT: $msg_server"
+  } 1>>"$shome/log/sent.log"
+}
+
 function on_bot {
-	case "${IRC_COMMAND}" in
-		PING)
-			echo "PONG ${IRC_PARAMS}"
-			;;
-		$RPL_ENDOFMOTD)
-			echo "JOIN ${nm_channel}"
-			;;
-		*)
-			echo "${IRC_PARAMS[*]}" 1>&2
-	esac
+  local nm_handler="on_${IRC_COMMAND,,}"
+  if [[ "$(type -t "${nm_handler}")" == "function" ]]; then
+    "$nm_handler"
+  else
+    on_weird
+  fi
+
+  on_log
+}
+
+function on_weird {
+  case "${IRC_COMMAND}" in
+    $RPL_ENDOFMOTD)
+      reply "JOIN ${nm_channel}" "$line"
+      ;;
+  esac
+}
+
+function on_quit {
+  sleep 60
+  exit 1
+}
+
+function on_log {
+  {
+    echo
+    echo "IRC_LINE    ${line}"
+    echo "IRC_PREFIX  ${IRC_PREFIX:-}"
+    echo "IRC_COMMAND ${IRC_COMMAND:-}"
+    echo "IRC_PARAMS  ${IRC_PARAMS[*]}"
+    echo "IRC_PARAMS0 ${IRC_PARAMS[0]:-}"
+    echo "IRC_PARAMS1 ${IRC_PARAMS[1]:-}"
+    echo "IRC_PARAMS2 ${IRC_PARAMS[2]:-}"
+    echo "IRC_TEXT    ${IRC_TEXT:-}"
+    echo "IRC_CHANNEL ${IRC_CHANNEL:-}"
+    echo "IRC_SENDER  ${IRC_SENDER:-}" 
+  } 1>>"$shome/log/debug.log"
+}
+
+function on_ping {
+  reply "PONG ${IRC_PARAMS}" "$line"
+  return
+}
+
+function on_privmsg {
+  if [[ "${IRC_CHANNEL:-}" == "${IRC_SENDER:-}" ]]; then
+    case "${IRC_PARAMS[1]:-}" in
+      "join #"*)
+        reply "JOIN ${IRC_PARAMS[1]#* }" "$line"
+        ;;
+      "part #"*)
+        reply "PART ${IRC_PARAMS[1]#* }" "$line"
+        ;;
+    esac
+    console "${IRC_SENDER} ${IRC_TEXT}"
+  else
+    console "${IRC_CHANNEL:-} ${IRC_SENDER} ${IRC_TEXT}"
+  fi
+
+}
+
+function on_notice {
+  if [[ "${IRC_CHANNEL:-}" == "${IRC_SENDER:-}" ]]; then
+    console "*** ${IRC_SENDER} ${IRC_TEXT}"
+  else
+    console "*** ${IRC_CHANNEL:-} ${IRC_SENDER} ${IRC_TEXT}"
+  fi
+
 }
 
 function on_timeout {
@@ -18,6 +100,6 @@ function on_timeout {
     cat "$shome/tmp/input.txt"
     rm -f "$shome/tmp/input.txt"
   else
-    date 1>&2
+    true
   fi
 }
